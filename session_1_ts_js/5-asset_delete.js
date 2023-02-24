@@ -1,4 +1,5 @@
-import algosdk from 'algosdk';
+const algosdk = require('algosdk');;
+const fs = require('fs');
 
 const DEBUG=0;
 
@@ -42,22 +43,27 @@ async function main() {
     // create algod client
     const algod_client = new algosdk.Algodv2(algod_token, algod_server, algod_server_port);
 
-    // build unsigned transaction
+    // get params
     let params = await algod_client.getTransactionParams().do(); 
-    params['fee'] = 0;
     if (DEBUG) console.log('params:', params);
 
-    type key="Hello World";
-    type value={v:string};
-    const note:Record<key, value> = {"Hello World": {v:""}};
+    // get asset_index from file
+    const file_name = '5_asset_index.txt';
+    let asset_index = 0;
+    try {
+        let data = fs.readFileSync(file_name, 'utf8');
+        asset_index = Number(data);
+        if (DEBUG) console.log(asset_index);
+    } catch (err) {
+        console.error(err);
+    }
 
-    let unsigned_txn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+    // build asset destroy txn
+    let unsigned_txn = algosdk.makeAssetDestroyTxnWithSuggestedParamsFromObject({
         from: addr1,
-        to: addr2,
-        amount: algosdk.algosToMicroalgos(0.15),
-        note: algosdk.encodeObj(note),
-        suggestedParams: params
-    });
+        suggestedParams: params, 
+        assetIndex: asset_index
+    })
     if (DEBUG) console.log('unsigned_txn:', unsigned_txn);
 
     // sign transaction
@@ -84,13 +90,20 @@ async function main() {
     // log confirmed transaction
     if (DEBUG) console.log('confirmed_txn:', confirmed_txn);
 
-    // log decoded note
-    let decoded_note = algosdk.decodeObj(confirmed_txn['txn']['txn']['note']);
-    console.log('decoded_note:', decoded_note);
+    // remove env file
+    ////const file_name = '5_asset_index.txt';
+    if (fs.existsSync(file_name)) {
+        fs.unlink(file_name, (err) => {
+            if (err) {
+                console.log(err);
+            }
+            console.log(file_name, ' deleted');
+        })
+    }
 
     // release wallet handle
     let hr = await kmd_client.releaseWalletHandle(wallet_handle['wallet_handle_token']);
-    if (DEBUG) console.log('wallet handle released, hr:', hr);
+    if (DEBUG) console.log('wallet handle released, hr:', hr)
 }
 
 main();

@@ -1,4 +1,4 @@
-algosdk = require('algosdk');
+const algosdk = require('algosdk');
 
 const DEBUG=0;
 
@@ -15,32 +15,36 @@ const algod_server_port = 4001;
 async function main() {
     // create kmd client
     const kmd_client = new algosdk.Kmd(kmd_token, kmd_server, kmd_server_port);
-    
+
     // list wallets
-    wallets = await kmd_client.listWallets();
+    let wallets = await kmd_client.listWallets();
     if(DEBUG) console.log('wallets:', wallets);
-    
-    // get wallet index for default wallet
+
+    // get wallet id for default wallet
+    const wallet_name = 'unencrypted-default-wallet';
+    const wallet_pw = '';
+    let wallet_id='';
     wallets.wallets.forEach(item => {
-        if (item.name ='unencrypted-default-wallet') {
+        if (item.name === wallet_name) {
             wallet_id = item.id;
         }
-    })
-    // get wallet_handle for defalt wallet
-    wallet_handle = await kmd_client.initWalletHandle(wallet_id, ''); 
+    }) 
+
+    // get wallet handle
+    let wallet_handle = await kmd_client.initWalletHandle(wallet_id, wallet_pw); 
     if(DEBUG) console.log('wallet_handle:', wallet_handle);
 
-    // get accounts (addresses) from default wallet
-    wallet_addresses = await kmd_client.listKeys(wallet_handle.wallet_handle_token);
+    // get accounts for that wallet
+    let wallet_addresses = await kmd_client.listKeys(wallet_handle.wallet_handle_token);
     if(DEBUG) console.log('wallet_addresses:', wallet_addresses);
 
     // create algod client
-    const algod_client = new algosdk.Algodv2(algod_token, algod_server, algod_server_port);
+    const algodClient = new algosdk.Algodv2(algod_token, algod_server, algod_server_port);
 
-    // check account balance for each account
+    // get account info for that accounts
     wallet_addresses.addresses.forEach(async (addr) => {
         if(DEBUG) console.log('addr', addr);
-        account_info = await algod_client.accountInformation(addr).do();
+        let account_info = await algodClient.accountInformation(addr).do();
         if(DEBUG) console.log('account_info', account_info);
         console.log('%s balance: %s microAlgos', account_info.address, account_info.amount);
 

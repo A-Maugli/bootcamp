@@ -48,7 +48,7 @@ var algod_server = "http://localhost";
 var algod_server_port = 4001;
 function main() {
     return __awaiter(this, void 0, void 0, function () {
-        var kmd_client, wallets, wallet_name, wallet_pw, wallet_id, wallet_handle, wallet_addresses, addr1, addr2, addr3, algod_client, params, note, unsigned_txn, addr1_sk, signed_txn, tx_id, roundTimeout, confirmed_txn, decoded_note;
+        var kmd_client, wallets, wallet_name, wallet_pw, wallet_id, wallet_handle, wallet_addresses, addr1, addr2, addr3, algod_client, params, note, unsigned_txn, addr1_sk, signed_txn, tx_id, roundTimeout, confirmed_txn, decoded_note, hr;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -117,6 +117,11 @@ function main() {
                         console.log('confirmed_txn:', confirmed_txn);
                     decoded_note = algosdk_1["default"].decodeObj(confirmed_txn['txn']['txn']['note']);
                     console.log('decoded_note:', decoded_note);
+                    return [4 /*yield*/, kmd_client.releaseWalletHandle(wallet_handle['wallet_handle_token'])];
+                case 8:
+                    hr = _a.sent();
+                    if (DEBUG)
+                        console.log('wallet handle released, hr:', hr);
                     return [2 /*return*/];
             }
         });

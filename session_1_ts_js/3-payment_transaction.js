@@ -1,4 +1,4 @@
-import algosdk from 'algosdk';
+const algosdk = require('algosdk');
 
 const DEBUG=0;
 
@@ -47,9 +47,9 @@ async function main() {
     params['fee'] = 0;
     if (DEBUG) console.log('params:', params);
 
-    type key="Hello World";
-    type value={v:string};
-    const note:Record<key, value> = {"Hello World": {v:""}};
+    //// type key="Hello World";
+    ////type value={v:string};
+    const note/*:Record<key, value>*/ = {"Hello World": {v:""}};
 
     let unsigned_txn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
         from: addr1,

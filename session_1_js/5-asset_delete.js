@@ -71,7 +71,7 @@ async function main() {
     // sign transaction
     addr1_sk = await kmd_client.exportKey(wallet_handle.wallet_handle_token, '', addr1);
     if (DEBUG) console.log('addr1_sk:', addr1_sk);
-    signed_txn = await unsigned_txn.signTxn(addr1_sk.private_key);
+    signed_txn = unsigned_txn.signTxn(addr1_sk.private_key);
     if (DEBUG) console.log('signed_txn:', signed_txn);
 
     // submit transaction
@@ -102,6 +102,10 @@ async function main() {
             console.log(file_name, ' deleted');
         })
     }
+
+    // release wallet handle
+    let hr = await kmd_client.releaseWalletHandle(wallet_handle['wallet_handle_token']);
+    if (DEBUG) console.log('wallet handle released, hr:', hr)
 }
 
 main();

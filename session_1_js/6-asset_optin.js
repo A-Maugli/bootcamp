@@ -46,8 +46,10 @@ async function main() {
     kmd_client = new algosdk.Kmd(kmd_token, kmd_server, kmd_server_port);
 
     // connect to default wallet
-    wallet_id = await getWalletId(kmd_client, 'unencrypted-default-wallet');
-    wallet_handle = await kmd_client.initWalletHandle(wallet_id, '');
+    const wallet_name = 'unencrypted-default-wallet';
+    const wallet_pw = '';
+    wallet_id = await getWalletId(kmd_client, wallet_name);
+    wallet_handle = await kmd_client.initWalletHandle(wallet_id, wallet_pw);
 
     // gather the first three accounts from the wallet
     wallet_addresses = await kmd_client.listKeys(wallet_handle.wallet_handle_token);
@@ -79,7 +81,7 @@ async function main() {
     // sign transaction
     addr2_sk = await kmd_client.exportKey(wallet_handle.wallet_handle_token, '', addr2);
     if (DEBUG) console.log('addr1_sk:', addr2_sk);
-    signed_txn = await unsigned_txn.signTxn(addr2_sk.private_key);
+    signed_txn = unsigned_txn.signTxn(addr2_sk.private_key);
     if (DEBUG) console.log('signed_txn:', signed_txn);
 
     // submit transaction

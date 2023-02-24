@@ -48,7 +48,7 @@ var algod_server = "http://localhost";
 var algod_server_port = 4001;
 function main() {
     return __awaiter(this, void 0, void 0, function () {
-        var kmd_client, wallets, wallet_name, wallet_pw, wallet_id, wallet_handle, wallet_addresses, algod_client;
+        var kmd_client, wallets, wallet_name, wallet_pw, wallet_id, wallet_handle, wallet_addresses, algod_client, hr;
         var _this = this;
         return __generator(this, function (_a) {
             switch (_a.label) {
@@ -90,6 +90,11 @@ function main() {
                             }
                         });
                     }); });
+                    return [4 /*yield*/, kmd_client.releaseWalletHandle(wallet_handle['wallet_handle_token'])];
+                case 4:
+                    hr = _a.sent();
+                    if (DEBUG)
+                        console.log('wallet handle released, hr:', hr);
                     return [2 /*return*/];
             }
         });

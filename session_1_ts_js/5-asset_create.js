@@ -1,4 +1,5 @@
-import algosdk from 'algosdk';
+const algosdk = require('algosdk');;
+const fs = require('fs');
 
 const DEBUG=0;
 
@@ -24,7 +25,7 @@ async function main() {
     const wallet_name = 'unencrypted-default-wallet';
     const wallet_pw = '';
     let wallet_id='';
-    wallets.wallets.forEach(item => {
+    wallets.wallets.forEach((item) => {
         if (item.name === wallet_name) {
             wallet_id = item.id;
         }
@@ -42,22 +43,27 @@ async function main() {
     // create algod client
     const algod_client = new algosdk.Algodv2(algod_token, algod_server, algod_server_port);
 
-    // build unsigned transaction
+    // get params
     let params = await algod_client.getTransactionParams().do(); 
     params['fee'] = 0;
     if (DEBUG) console.log('params:', params);
 
-    type key="Hello World";
-    type value={v:string};
-    const note:Record<key, value> = {"Hello World": {v:""}};
-
-    let unsigned_txn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+    // build asset delete txn
+    let unsigned_txn = algosdk.makeAssetCreateTxnWithSuggestedParamsFromObject({
         from: addr1,
-        to: addr2,
-        amount: algosdk.algosToMicroalgos(0.15),
-        note: algosdk.encodeObj(note),
-        suggestedParams: params
-    });
+        suggestedParams: params,
+        total: 10000,   // Fungible token, number of total coins: 10000 / 100, because decimals is 2
+        decimals: 2,
+        defaultFrozen: false,
+        unitName: "FUNTOK",
+        assetName: "Fun Token",
+        manager: addr1,
+        reserve: undefined,
+        freeze: undefined,
+        clawback: undefined,
+        assetURL: "https://path/to/my/fungible/asset/metadata.json",
+        assetMetadataHash: undefined
+    })
     if (DEBUG) console.log('unsigned_txn:', unsigned_txn);
 
     // sign transaction
@@ -84,9 +90,16 @@ async function main() {
     // log confirmed transaction
     if (DEBUG) console.log('confirmed_txn:', confirmed_txn);
 
-    // log decoded note
-    let decoded_note = algosdk.decodeObj(confirmed_txn['txn']['txn']['note']);
-    console.log('decoded_note:', decoded_note);
+    // write asset id to an environment file
+    let asset_index = (confirmed_txn['asset-index']).toString();
+    fs.writeFile('5_asset_index.txt', asset_index, (err) => {
+        if (err) {
+            console.log(err);
+        }
+        else {
+            console.log('File 5_asset_index.txt written successfully')
+        }
+    });
 
     // release wallet handle
     let hr = await kmd_client.releaseWalletHandle(wallet_handle['wallet_handle_token']);

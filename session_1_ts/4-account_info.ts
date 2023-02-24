@@ -45,6 +45,10 @@ async function main() {
         let account_info = await algod_client.accountInformation(addr).do();
         console.log('account_info', JSON.stringify(account_info, null, 4));
     });
+
+    // release wallet handle
+    let hr = await kmd_client.releaseWalletHandle(wallet_handle['wallet_handle_token']);
+    if (DEBUG) console.log('wallet handle released, hr:', hr);
 }
 
 main();

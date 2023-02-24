@@ -1,5 +1,6 @@
-const algosdk = require('algosdk');
+const algosdk = require('algosdk');;
 const fs = require('fs');
+
 const DEBUG=0;
 
 // define sandbox values for kmd client
@@ -17,7 +18,7 @@ async function getWalletId(
     walletName) {
     
     // list wallets
-    wallets = await kmdClient.listWallets();
+    let wallets = await kmdClient.listWallets();
     if(DEBUG) console.log('wallets:', wallets);
     
     // get wallet index for default wallet
@@ -31,9 +32,10 @@ async function getWalletId(
 }
 
 function getAssetIndex(fname) {
+    var asset_index = 0;
     try {
         var data = fs.readFileSync(fname, 'utf8');
-        var asset_index = Number(data);
+        asset_index = Number(data);
         if (DEBUG) console.log(asset_index);
     } catch (err) {
         console.error(err);
@@ -43,49 +45,49 @@ function getAssetIndex(fname) {
 
 async function main() {
     // create kmd client
-    kmd_client = new algosdk.Kmd(kmd_token, kmd_server, kmd_server_port);
+    const kmd_client = new algosdk.Kmd(kmd_token, kmd_server, kmd_server_port);
 
     // connect to default wallet
     const wallet_name = 'unencrypted-default-wallet';
     const wallet_pw = '';
-    wallet_id = await getWalletId(kmd_client, wallet_name);
-    wallet_handle = await kmd_client.initWalletHandle(wallet_id, wallet_pw);
+    let wallet_id = await getWalletId(kmd_client, wallet_name);
+    let wallet_handle = await kmd_client.initWalletHandle(wallet_id, wallet_pw);
 
     // gather the first three accounts from the wallet
-    wallet_addresses = await kmd_client.listKeys(wallet_handle.wallet_handle_token);
-    addr1 = wallet_addresses.addresses[0];
-    addr2 = wallet_addresses.addresses[1];
-    addr3 = wallet_addresses.addresses[2];
+    let wallet_addresses = await kmd_client.listKeys(wallet_handle.wallet_handle_token);
+    let addr1 = wallet_addresses.addresses[0];
+    let addr2 = wallet_addresses.addresses[1];
+    let addr3 = wallet_addresses.addresses[2];
 
     // create algod client
-    algod_client = new algosdk.Algodv2(algod_token, algod_server, algod_server_port);
+    const algod_client = new algosdk.Algodv2(algod_token, algod_server, algod_server_port);
 
     // get asset index from file
-    asset_index = getAssetIndex('5_asset_index.txt');
+    let asset_index = getAssetIndex('5_asset_index.txt');
     if (DEBUG) console.log('asset_index:', asset_index);
 
-    // build asset create txn
-    params = await algod_client.getTransactionParams().do(); 
+    // get params
+    let params = await algod_client.getTransactionParams().do(); 
     if (DEBUG) console.log('params:', params);
 
-    unsigned_txn = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({ 
+    // build asset optin txn
+    let unsigned_txn = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
         suggestedParams: params,
         from: addr2,
-        to: addr1, 
-        closeRemainderTo: addr1,
+        to: addr2, 
         assetIndex: asset_index, 
         amount: 0
     });
     if (DEBUG) console.log('unsigned_txn:', unsigned_txn);
 
     // sign transaction
-    addr2_sk = await kmd_client.exportKey(wallet_handle.wallet_handle_token, wallet_pw, addr2);
+    let addr2_sk = await kmd_client.exportKey(wallet_handle.wallet_handle_token, '', addr2);
     if (DEBUG) console.log('addr1_sk:', addr2_sk);
-    signed_txn = unsigned_txn.signTxn(addr2_sk.private_key);
+    let signed_txn = await unsigned_txn.signTxn(addr2_sk.private_key);
     if (DEBUG) console.log('signed_txn:', signed_txn);
 
     // submit transaction
-    tx_id = await algod_client.sendRawTransaction(signed_txn).do();
+    let tx_id = await algod_client.sendRawTransaction(signed_txn).do();
     console.log("Successfully sent transaction with tx_id: %s", tx_id);
     console.log('tx_id["txId"]:', tx_id['txId']);
 
