@@ -1,6 +1,6 @@
 const algosdk = require('algosdk');
 
-const DEBUG = 1;
+const DEBUG = 0;
 
 const createAccount = function() {
     let myAccount = algosdk.generateAccount();
@@ -17,4 +17,4 @@ function main() {
   console.log("Account mnemonic:", accountMnemonic);
 }
 
-main().catch(function (err) {console.log(err)});
+main();
