@@ -21,7 +21,7 @@ def main() :
     # connect to default wallet
     wallet = Wallet("unencrypted-default-wallet", "", kmd_client)
 
-    # gather the three default accounts and corrisponding mnemonic passphrase
+    # gather the three default accounts
     wallet_addresses = wallet.list_keys()
     addr1 = wallet_addresses[0]
     addr2 = wallet_addresses[1]

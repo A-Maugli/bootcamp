@@ -52,6 +52,7 @@ app_client = client.application_client.ApplicationClient(
 )
 
 app_client.create()
-return_obj = app_client.call(method=FirstApp.logger, a="A", b="B")
+#return_obj = app_client.call(method=FirstApp.logger, a="A", b="B")
+return_obj = app_client.call(method=FirstApp.hello, name="Joe")
 
 print(return_obj.return_value)

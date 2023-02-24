@@ -77,7 +77,7 @@ class Auction(Application):
             self.auction_end.set(length.get() + Global.latest_timestamp()),
             self.highest_bid.set(starting_price.get()),
         )
-
+'''
     @internal(TealType.none)
     def pay(self, receiver, amount):
         return InnerTxnBuilder.Execute(
@@ -155,7 +155,7 @@ class Auction(Application):
                 TxnField.close_remainder_to: APP_CREATOR,
             }
         )
-
+'''
 
 if __name__ == "__main__":
     app = Auction(version=7)
